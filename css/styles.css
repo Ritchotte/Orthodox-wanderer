@@ -1556,11 +1556,89 @@ main [id] {
     box-shadow: 0 4px 20px rgba(0,0,0,0.5);
     min-width: 0;
     max-width: 280px;
-    transition: box-shadow 0.3s ease;
+    transition: box-shadow 0.3s ease, opacity 0.3s ease;
 }
 
 #mini-player.mp-playing {
     box-shadow: 0 4px 24px rgba(201, 168, 76, 0.25);
+}
+
+/* ── popup greeting on first arrival ── */
+.mp-prompt { display: none; }
+
+#mini-player.mp-popup {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+    top: 50%;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    max-width: min(340px, 90vw);
+    padding: 1.7rem 1.9rem;
+    border-radius: 18px;
+    box-shadow: 0 18px 50px rgba(0,0,0,0.55);
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.92);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+#mini-player.mp-popup.mp-popup-in {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+#mini-player.mp-popup.mp-docking {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.92);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+#mini-player.mp-popup .mp-info { display: none; }
+
+#mini-player.mp-popup .mp-prompt { display: block; }
+
+#mini-player.mp-popup .mp-controls {
+    justify-content: center;
+    gap: 0.6rem;
+}
+
+#mini-player.mp-popup .mp-btn {
+    width: auto;
+    height: auto;
+    border-radius: 22px;
+    padding: 0.5rem 1.2rem;
+    font-size: 0.78rem;
+    font-family: var(--font-heading);
+}
+
+#mini-player.mp-popup .mp-btn-close {
+    background: transparent;
+    border-color: rgba(201, 168, 76, 0.25);
+    font-size: 0.72rem;
+    opacity: 0.75;
+}
+
+.mp-prompt-note {
+    display: block;
+    color: var(--color-gold);
+    font-size: 1.6rem;
+    margin-bottom: 0.2rem;
+}
+
+.mp-prompt-title {
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    color: var(--color-cream);
+    margin: 0;
+}
+
+.mp-prompt-sub {
+    font-size: 0.78rem;
+    color: rgba(201, 168, 76, 0.85);
+    font-style: italic;
+    margin: 0.25rem 0 0;
 }
 
 .mp-info {
