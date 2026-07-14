@@ -1555,7 +1555,7 @@ main [id] {
     padding: 0.55rem 0.75rem 0.55rem 1rem;
     box-shadow: 0 4px 20px rgba(0,0,0,0.5);
     min-width: 0;
-    max-width: 280px;
+    max-width: 330px;
     transition: box-shadow 0.3s ease, opacity 0.3s ease;
 }
 
@@ -1596,6 +1596,8 @@ main [id] {
 }
 
 #mini-player.mp-popup .mp-info { display: none; }
+
+#mini-player.mp-popup .mp-skip { display: none; }
 
 #mini-player.mp-popup .mp-prompt { display: block; }
 

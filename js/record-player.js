@@ -1,10 +1,13 @@
 var owRecordPlayerInit = (function () {
 
     var tracks = [
+        { title: "They Will Shade Us With Their Wings", artist: "Max Richter", src: "music/Max Richter - They Will Shade Us With Their Wings .mp3" },
         { title: "November",                            artist: "Max Richter", src: "music/Max Richter - November.mp3" },
         { title: "Landscape With Figure",               artist: "Max Richter", src: "music/Max Richter - Landscape With Figure (1922) - Elliott (128k).mp3" },
-        { title: "They Will Shade Us With Their Wings", artist: "Max Richter", src: "music/Max Richter - They Will Shade Us With Their Wings .mp3" },
     ];
+
+    /* share the playlist so the persistent mini-player can play all tracks too */
+    window.owTracks = tracks;
 
     /* hand off to mini-player when leaving the blog page */
     document.addEventListener('ow:beforenavigate', function (e) {

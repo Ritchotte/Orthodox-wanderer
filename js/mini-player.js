@@ -2,13 +2,29 @@
     var audio   = new Audio();
     var playing = false;
     var state   = null;
+    var idx     = 0;
 
-    /* track offered when the player introduces itself on first arrival */
-    var DEFAULT_TRACK = {
-        src:    'music/Max Richter - November.mp3',
-        title:  'November',
-        artist: 'Max Richter'
-    };
+    /* The blog's record player publishes its playlist on window.owTracks.
+       This fallback keeps the mini-player working if that hasn't loaded. */
+    var FALLBACK_TRACKS = [
+        { title: "They Will Shade Us With Their Wings", artist: "Max Richter", src: "music/Max Richter - They Will Shade Us With Their Wings .mp3" },
+        { title: "November",                            artist: "Max Richter", src: "music/Max Richter - November.mp3" },
+        { title: "Landscape With Figure",               artist: "Max Richter", src: "music/Max Richter - Landscape With Figure (1922) - Elliott (128k).mp3" },
+    ];
+
+    function playlist() {
+        return (window.owTracks && window.owTracks.length) ? window.owTracks : FALLBACK_TRACKS;
+    }
+
+    /* match a (possibly absolute, url-encoded) src back to a playlist index */
+    function indexOfSrc(src) {
+        var list = playlist();
+        var name = decodeURIComponent(src || '').split('/').pop();
+        for (var i = 0; i < list.length; i++) {
+            if (decodeURIComponent(list[i].src).split('/').pop() === name) return i;
+        }
+        return -1;
+    }
 
     /* ── widget ── */
     var wrap = document.createElement('div');
@@ -28,12 +44,16 @@
             '</div>' +
         '</div>' +
         '<div class="mp-controls">' +
+            '<button class="mp-btn mp-skip" id="mp-prev" title="Previous">&#9664;&#9664;</button>' +
             '<button class="mp-btn" id="mp-play">&#9654;</button>' +
+            '<button class="mp-btn mp-skip" id="mp-next" title="Next">&#9654;&#9654;</button>' +
             '<button class="mp-btn mp-btn-close" id="mp-close">&#10005;</button>' +
         '</div>';
     document.body.appendChild(wrap);
 
     var playBtn  = document.getElementById('mp-play');
+    var prevBtn  = document.getElementById('mp-prev');
+    var nextBtn  = document.getElementById('mp-next');
     var closeBtn = document.getElementById('mp-close');
     var titleEl  = document.getElementById('mp-title-text');
     var artistEl = document.getElementById('mp-artist-text');
@@ -52,6 +72,18 @@
         wrap.classList.remove('mp-playing');
     }
 
+    /* load a track by index (wraps around); plays it when `play` is true */
+    function loadTrack(i, play) {
+        var list = playlist();
+        idx = (i % list.length + list.length) % list.length;
+        var t = list[idx];
+        state = t;
+        audio.src = t.src;
+        titleEl.textContent  = t.title;
+        artistEl.textContent = t.artist;
+        if (play) doPlay();
+    }
+
     function showWith(s) {
         state = s;
         titleEl.textContent  = s.title;
@@ -66,11 +98,8 @@
 
     function openPopup() {
         if (isPopup()) return;
-        /* preload the default track so a tap on "Play" starts instantly */
-        state = DEFAULT_TRACK;
-        audio.src = DEFAULT_TRACK.src;
-        titleEl.textContent  = DEFAULT_TRACK.title;
-        artistEl.textContent = DEFAULT_TRACK.artist;
+        /* preload the first track so a tap on "Play" starts instantly */
+        loadTrack(0, false);
         playBtn.innerHTML  = 'Play';
         closeBtn.innerHTML = 'Not now';
         wrap.classList.add('mp-popup');
@@ -108,6 +137,8 @@
     window.owMiniPlayer = {
         handoff: function (s) {
             if (isPopup()) dock();
+            var found = indexOfSrc(s.src);
+            idx = found >= 0 ? found : 0;
             audio.src         = s.src;
             audio.currentTime = s.time || 0;
             showWith(s);
@@ -123,6 +154,9 @@
         playing ? doPause() : doPlay();
     });
 
+    prevBtn.addEventListener('click', function () { loadTrack(idx - 1, playing); });
+    nextBtn.addEventListener('click', function () { loadTrack(idx + 1, playing); });
+
     closeBtn.addEventListener('click', function () {
         if (isPopup()) { dock(); return; }   /* tuck into the corner, paused */
         doPause();
@@ -130,7 +164,8 @@
         state = null;
     });
 
-    audio.addEventListener('ended', function () { doPause(); });
+    /* roll on to the next track so all three play through */
+    audio.addEventListener('ended', function () { loadTrack(idx + 1, true); });
 
     /* ── react to AJAX navigation ── */
     document.addEventListener('ow:navigate', function (e) {
